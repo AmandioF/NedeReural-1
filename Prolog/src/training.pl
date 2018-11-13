@@ -1,5 +1,5 @@
 :- module(training, [train/1]).
-:- [src/execution, src/inputOutput].
+:- [src/execution, src/inputOutput, src/matrix].
 :- use_module(library(random)).
 
 train(Amount) :- getTraining(TrainingSet),
@@ -24,17 +24,49 @@ trainingEpoch(TrainingSet, Network, NewNetwork) :-
                             MinibatchAmount is 20,
                             MinibatchSize is TrainingSet // 20,
                             % cria uma matriz, onde cada linha é uma parte do training set
-                            chunks_of(ShuffledTrainingSet, MinibatchAmount, Minibatches),
+                            chunksOf(ShuffledTrainingSet, MinibatchAmount, Minibatches),
                             manageMinibatch(MinibatchAmount, 0, Network, Minibatches, NewNetwork).
 
-manageMinibatch(Amount, Counter, Network, Minibatches, NewNetwork) :- NewNetwork = [].
+manageMinibatch(Amount, Counter, Network, _, NewNetwork) :- 
+                                                    Index is Counter + 1, 
+                                                    Amount =:= Index, 
+                                                    generateBasedOf(Network, NewNetwork).
 
+manageMinibatch(Amount, Counter, Network, Minibatches, NewNetwork) :- 
+                                                nth0(Counter, Minibatches, Minibatch),
+                                                minibatchEvaluation(Minibatch, Amount, Network, Changes),
+                                                addNetworks(Network, Changes, NetworkA),
+                                                NewCounter is Counter + 1,
+                                                manageMinibatch(Amount, NewCounter, Network, Minibatches, NetworkB),
+                                                addNetworks(NetworkA, NetworkB, NewNetwork).
 
+minibatchEvaluation(Minibatch, Amount, Network, AverageDesiredChanges) :- 
+                                                            manageSample(Minibatch, Amount, Network, SumedDesiredChanges),
+                                                            divideNetworks(SumedDesiredChanges, Amount, AverageDesiredChanges).
 
+manageSample(_, Counter, NetworkModel, NetworkZero) :- 
+                                                    Counter > 0, 
+                                                    generateBasedOf(NetworkModel, NetworkZero).
+
+manageSample(Minibatch, Counter, NetworkModel, Changes) :-
+                                                    nth0(Counter, Minibatch, Sample),
+                                                    nth0(1, Sample, RepresentedInt),
+                                                    nth0(2, Sample, Image),
+                                                    feedforward(Image, NetworkModel, Network),
+                                                    buildExpectedOutput(RepresentedInt, ExpectedOutput),
+                                                    backpropagation(Network, Image, ExpectedOutput, DesiredChanges),
+                                                    generateBasedOf(SumChanges, NetworkModel),
+                                                    addNetworks(SumChanges, DesiredChanges, ChangesA),
+                                                    manageSample(Minibatch, Counter, NetworkModel, ChangesB),
+                                                    addNetworks(ChangesA, ChangesB, Changes).
+
+buildExpectedOutput(RepresentedInt, ExpectedOutput) :-
+                                                BasicOutput = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                                select(RepresentedInt, BasicOutput, RepresentedInt, ExpectedOutput).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-chunks_of(List, T, [Start|Rest]) :-
+chunksOf(List, T, [Start|Rest]) :-
     append(Start, Remainder, List),
     length(Start, T),
-    chunks_of(Remainder, T, Rest).
+    chunksOf(Remainder, T, Rest).
 
