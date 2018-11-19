@@ -22,7 +22,7 @@ trainingEpoch(TrainingSet, Network, NewNetwork) :-
                             % faz o shuffle no training seet
                             random_permutation(TrainingSet, ShuffledTrainingSet),
                             MinibatchAmount is 20,
-                            MinibatchSize is TrainingSet // 20,
+                            MinibatchSize is TrainingSize // 20,
                             % cria uma matriz, onde cada linha é uma parte do training set
                             chunksOf(ShuffledTrainingSet, MinibatchAmount, Minibatches),
                             manageMinibatch(MinibatchAmount, 0, Network, Minibatches, NewNetwork).
