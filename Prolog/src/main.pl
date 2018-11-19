@@ -1,4 +1,4 @@
-:- [src/execution, src/training].
+:- [execution, training].
 :- initialization(main).
 
 main :- read(Option), run(Option).

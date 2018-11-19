@@ -1,5 +1,5 @@
 :- module(training, [train/1]).
-:- [src/execution, src/inputOutput, src/matrix].
+:- [execution, inputOutput, matrix].
 :- use_module(library(random)).
 
 train(Amount) :- getTraining(TrainingSet),
