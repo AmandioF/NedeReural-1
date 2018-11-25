@@ -1,4 +1,4 @@
-:- module(matrix, [dot/3, hadamardMatrix/3, multMatrix/3, addMatrix/3, addition/3, product/3, productByScalar/3]).
+:- module(matrix, [dot/3, hadamardMatrix/3, subMatrix/3, multMatrix/3, addMatrix/3, addition/3, product/3, productByScalar/3]).
 :- use_module(library(clpfd)).
 
 % N is the dot product of lists V1 and V2.
@@ -18,3 +18,6 @@ addition(X,Y,Z) :- Z is X+Y.
 %% Requires testing
 hadamardMatrix(M1, M2, M3) :- maplist(maplist(mult), M1, M2, M3).
 mult(X,Y,Z) :- Z is X*Y.
+
+subMatrix(M1, M2, M3) :- maplist(maplist(subtraction), M1, M2, M3).
+subtraction(X,Y,Z) :- Z is X - Y.

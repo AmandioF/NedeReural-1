@@ -92,13 +92,12 @@ backpropagation(Network, Image, ExpectedOutput, DesiredChanges) :-
 
 sig(Elem, Res) :- Res is 1 / 1 + exp(-Elem).
 derivativeSig(Elem, Res) :- sig(Elem, S), Res is S * (1 - S).
-derivativeSigList(List, Res) :- maplist(derivativeSig, List, Res).
-
-%% TODO: Isso precisa de revisao, talvez o calculo esteja errado
+derivativeSigMatrix(List, Res) :- maplist(maplist(derivativeSig), List, Res).
+                                                
 outputError(OActivation, ExpectedOutput, OZeta, Res) :- 
-    derivativeSigList(OZeta, ZetaDSig), 
-% Talvez o dot product nao seja ideal
-    dot((OActivation - ExpectedOutput), ZetaDSig, Res).
+    derivativeSigMatrix(OZeta, ZetaDSig),
+    subMatrix(OActivation, ExpectedOutput, Sub),
+    hadamardMatrix(Sub, ZetaDSig, Res).
 
 hiddenError(OWeight, OError, HZeta, Res) :-
     derivativeSigList(HZeta, HZetaDSig),
