@@ -1,4 +1,4 @@
-:- module(matrix, [dot/3, multMatrix/3, addMatrix/3, addition/3, product/3, productByScalar/3]).
+:- module(matrix, [dot/3, hadamardMatrix/3, multMatrix/3, addMatrix/3, addition/3, product/3, productByScalar/3]).
 :- use_module(library(clpfd)).
 
 % N is the dot product of lists V1 and V2.
@@ -11,5 +11,9 @@ productByScalar(M1, K, M2) :- maplist(maplist(product(K)), M1, M2).
 multMatrix(M1, M2, M3) :- transpose(M2,MT), maplist(mmHelper(MT), M1, M3).
 mmHelper(M2, I1, M3) :- maplist(dot(I1), M2, M3).
 
+
 addMatrix(M1, M2, M3) :- maplist(maplist(addition), M1, M2, M3).
 addition(X,Y,Z) :- Z is X+Y.
+
+hadamardMatrix(M1, M2, M3) :- maplist(maplist(mult), M1, M2, M3).
+mult(X,Y,Z) :- Z is X*Y.
