@@ -82,8 +82,8 @@ backpropagation(Network, Image, ExpectedOutput, DesiredChanges) :-
                                                     nth0(3, Network, OBias),
 
                                                     %% TODO: Implementar
-                                                    computeOutputError(OActivation, ExpectedOutput, OZeta, OError),
-                                                    computeHiddenError(OWeight, OError, HZeta, HError),
+                                                    outputError(OActivation, ExpectedOutput, OZeta, OError),
+                                                    hiddenError(OWeight, OError, HZeta, HError),
                                                     computeODesired(OError, HActivation, ODesired),
                                                     computeHDesired(HError, HDesired).
 
@@ -93,6 +93,23 @@ backpropagation(Network, Image, ExpectedOutput, DesiredChanges) :-
 sig(Elem, Res) :- Res is 1 / 1 + exp(-Elem).
 derivativeSig(Elem, Res) :- sig(Elem, S), Res is S * (1 - S).
 derivativeSigList(List, Res) :- maplist(derivativeSig, List, Res).
+
+%% TODO: Isso precisa de revisao, talvez o calculo esteja errado
+outputError(OActivation, ExpectedOutput, OZeta, Res) :- 
+    derivativeSigList(OZeta, ZetaDSig), 
+% Talvez o dot product nao seja ideal
+    dot((OActivation - ExpectedOutput), ZetaDSig, Res).
+
+hiddenError(OWeight, OError, HZeta, Res) :-
+    derivativeSigList(HZeta, HZetaDSig),
+% Maybe transpose won't work (?)
+    transpose(OWeight, OWeightTrans),
+    multMatrix(OWeightTrans, OError, MultRes),
+    hadamardMatrix(MultRes, HZetaDSig, Res).
+
+
+    
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 chunksOf(List, T, [Start|Rest]) :-
