@@ -15,5 +15,6 @@ mmHelper(M2, I1, M3) :- maplist(dot(I1), M2, M3).
 addMatrix(M1, M2, M3) :- maplist(maplist(addition), M1, M2, M3).
 addition(X,Y,Z) :- Z is X+Y.
 
+%% Needs testing
 hadamardMatrix(M1, M2, M3) :- maplist(maplist(mult), M1, M2, M3).
 mult(X,Y,Z) :- Z is X*Y.
