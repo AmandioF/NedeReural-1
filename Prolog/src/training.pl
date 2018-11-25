@@ -90,6 +90,9 @@ backpropagation(Network, Image, ExpectedOutput, DesiredChanges) :-
                                                     %% TODO: Definir DesiredChanges
                                                     % DesiredChanges = ?.
 
+sig(Elem, Res) :- Res is 1 / 1 + exp(-Elem).
+derivativeSig(Elem, Res) :- sig(Elem, S), Res is S * (1 - S).
+derivativeSigList(List, Res) :- maplist(derivativeSig, List, Res).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 chunksOf(List, T, [Start|Rest]) :-
