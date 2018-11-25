@@ -1,5 +1,5 @@
 :- module(execution, [execute/0, getNetwork/1, generateBasedOf/2, addNetworks/3, divideNetworks/3]).
-:- [src/matrix].
+:- [matrix].
 :- use_module(library(lists)).
 
 

@@ -1,5 +1,5 @@
 :- module(training, [train/1]).
-:- [src/execution, src/inputOutput, src/matrix].
+:- [execution, inputOutput, matrix].
 :- use_module(library(random)).
 
 train(Amount) :- getTraining(TrainingSet),
@@ -22,7 +22,7 @@ trainingEpoch(TrainingSet, Network, NewNetwork) :-
                             % faz o shuffle no training seet
                             random_permutation(TrainingSet, ShuffledTrainingSet),
                             MinibatchAmount is 20,
-                            MinibatchSize is TrainingSet // 20,
+                            MinibatchSize is TrainingSize // 20,
                             % cria uma matriz, onde cada linha é uma parte do training set
                             chunksOf(ShuffledTrainingSet, MinibatchAmount, Minibatches),
                             manageMinibatch(MinibatchAmount, 0, Network, Minibatches, NewNetwork).
@@ -63,6 +63,53 @@ manageSample(Minibatch, Counter, NetworkModel, Changes) :-
 buildExpectedOutput(RepresentedInt, ExpectedOutput) :-
                                                 BasicOutput = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                                 select(RepresentedInt, BasicOutput, RepresentedInt, ExpectedOutput).
+
+backpropagation(Network, Image, ExpectedOutput, DesiredChanges) :-
+
+                                                    %% TODO: Lembrar de renomear para singular
+                                                    nth0(0, Network, HWeight),
+                                                    nth0(1, Network, HBias),
+
+                                                    %% TODO: Network precisa armazenar os Zetas
+                                                    % nth0(?, Network, HZeta),
+                                                    % nth0(?, Network, OZeta),
+
+                                                    %% TODO: Network precisa armazenar os Activations
+                                                    % nth0(?, Network, OActivation),
+                                                    % nth0(?, Network, HActivation),
+
+                                                    nth0(2, Network, OWeight),
+                                                    nth0(3, Network, OBias),
+
+                                                    %% TODO: Implementar
+                                                    outputError(OActivation, ExpectedOutput, OZeta, OError),
+                                                    hiddenError(OWeight, OError, HZeta, HError),
+                                                    computeODesired(OError, HActivation, ODesired),
+                                                    computeHDesired(HError, HDesired).
+
+                                                    %% TODO: Definir DesiredChanges
+                                                    % DesiredChanges = ?.
+
+sig(Elem, Res) :- Res is 1 / 1 + exp(-Elem).
+derivativeSig(Elem, Res) :- sig(Elem, S), Res is S * (1 - S).
+derivativeSigList(List, Res) :- maplist(derivativeSig, List, Res).
+
+%% TODO: Isso precisa de revisao, talvez o calculo esteja errado
+outputError(OActivation, ExpectedOutput, OZeta, Res) :- 
+    derivativeSigList(OZeta, ZetaDSig), 
+% Talvez o dot product nao seja ideal
+    dot((OActivation - ExpectedOutput), ZetaDSig, Res).
+
+hiddenError(OWeight, OError, HZeta, Res) :-
+    derivativeSigList(HZeta, HZetaDSig),
+% Maybe transpose won't work (?)
+    transpose(OWeight, OWeightTrans),
+    multMatrix(OWeightTrans, OError, MultRes),
+    hadamardMatrix(MultRes, HZetaDSig, Res).
+
+
+    
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 chunksOf(List, T, [Start|Rest]) :-
