@@ -100,7 +100,7 @@ outputError(OActivation, ExpectedOutput, OZeta, Res) :-
     hadamardMatrix(Sub, ZetaDSig, Res).
 
 hiddenError(OWeight, OError, HZeta, Res) :-
-    derivativeSigList(HZeta, HZetaDSig),
+    derivativeSigMatrix(HZeta, HZetaDSig),
 % Maybe transpose won't work (?)
     transpose(OWeight, OWeightTrans),
     multMatrix(OWeightTrans, OError, MultRes),
