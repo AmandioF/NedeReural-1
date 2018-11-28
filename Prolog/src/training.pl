@@ -79,9 +79,8 @@ backpropagation(Network, Image, ExpectedOutput, DesiredChanges) :-
                                                     nth0(3, Network, HZeta),
                                                     nth0(7, Network, OZeta),
 
-                                                    %% TODO: Network precisa armazenar os Activations
-                                                    % nth0(?, Network, OActivation),
-                                                    % nth0(?, Network, HActivation),
+                                                    nth0(6, Network, OActivation),
+                                                    nth0(2, Network, HActivation),
 
                                                     nth0(2, Network, OWeight),
                                                     nth0(3, Network, OBias),
