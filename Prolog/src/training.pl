@@ -19,7 +19,7 @@ manageTrainingEpoch(Amount, TrainingSet, TestSet, Network) :-
 
 trainingEpoch(TrainingSet, Network, NewNetwork) :-
                             length(TrainingSet, TrainingSize),
-                            % faz o shuffle no training seet
+                            % faz o shuffle no training set
                             random_permutation(TrainingSet, ShuffledTrainingSet),
                             MinibatchAmount is 20,
                             MinibatchSize is TrainingSize // 20,
@@ -27,18 +27,18 @@ trainingEpoch(TrainingSet, Network, NewNetwork) :-
                             chunksOf(ShuffledTrainingSet, MinibatchAmount, Minibatches),
                             manageMinibatch(MinibatchAmount, 0, Network, Minibatches, NewNetwork).
 
+manageMinibatch(Amount, Counter, Network, Minibatches, NewNetwork) :- 
+                            nth0(Counter, Minibatches, Minibatch),
+                            minibatchEvaluation(Minibatch, Amount, Network, Changes),
+                            addNetworks(Network, Changes, NetworkA),
+                            NewCounter is Counter + 1,
+                            manageMinibatch(Amount, NewCounter, Network, Minibatches, NetworkB),
+                            addNetworks(NetworkA, NetworkB, NewNetwork).
+
 manageMinibatch(Amount, Counter, Network, _, NewNetwork) :- 
                                                     Index is Counter + 1, 
                                                     Amount =:= Index, 
                                                     generateBasedOf(Network, NewNetwork).
-
-manageMinibatch(Amount, Counter, Network, Minibatches, NewNetwork) :- 
-                                                nth0(Counter, Minibatches, Minibatch),
-                                                minibatchEvaluation(Minibatch, Amount, Network, Changes),
-                                                addNetworks(Network, Changes, NetworkA),
-                                                NewCounter is Counter + 1,
-                                                manageMinibatch(Amount, NewCounter, Network, Minibatches, NetworkB),
-                                                addNetworks(NetworkA, NetworkB, NewNetwork).
 
 minibatchEvaluation(Minibatch, Amount, Network, AverageDesiredChanges) :- 
                                                             manageSample(Minibatch, Amount, Network, SumedDesiredChanges),
@@ -53,16 +53,23 @@ manageSample(Minibatch, Counter, NetworkModel, Changes) :-
                                                     nth0(1, Sample, RepresentedInt),
                                                     nth0(2, Sample, Image),
                                                     feedforward(Image, NetworkModel, Network),
-                                                    buildExpectedOutput(RepresentedInt, ExpectedOutput),
+                                                    expectedOutput(RepresentedInt, ExpectedOutput),
                                                     backpropagation(Network, Image, ExpectedOutput, DesiredChanges),
                                                     generateBasedOf(SumChanges, NetworkModel),
                                                     addNetworks(SumChanges, DesiredChanges, ChangesA),
                                                     manageSample(Minibatch, Counter, NetworkModel, ChangesB),
                                                     addNetworks(ChangesA, ChangesB, Changes).
 
-buildExpectedOutput(RepresentedInt, ExpectedOutput) :-
-                                                BasicOutput = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                select(RepresentedInt, BasicOutput, RepresentedInt, ExpectedOutput).
+expectedOutput(0, [[1.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0]]).
+expectedOutput(1, [[0.0],[1.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0]]).
+expectedOutput(2, [[0.0],[0.0],[1.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0]]).
+expectedOutput(3, [[0.0],[0.0],[0.0],[1.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0]]).
+expectedOutput(4, [[0.0],[0.0],[0.0],[0.0],[1.0],[0.0],[0.0],[0.0],[0.0],[0.0]]).
+expectedOutput(5, [[0.0],[0.0],[0.0],[0.0],[0.0],[1.0],[0.0],[0.0],[0.0],[0.0]]).
+expectedOutput(6, [[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[1.0],[0.0],[0.0],[0.0]]).
+expectedOutput(7, [[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[1.0],[0.0],[0.0]]).
+expectedOutput(8, [[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[1.0],[0.0]]).
+expectedOutput(9, [[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[1.0]]).
 
 backpropagation(Network, Image, ExpectedOutput, DesiredChanges) :-
 
