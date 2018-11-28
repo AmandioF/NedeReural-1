@@ -73,13 +73,11 @@ expectedOutput(9, [[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[1.0]])
 
 backpropagation(Network, Image, ExpectedOutput, DesiredChanges) :-
 
-                                                    %% TODO: Lembrar de renomear para singular
                                                     nth0(0, Network, HWeight),
                                                     nth0(1, Network, HBias),
 
-                                                    %% TODO: Network precisa armazenar os Zetas
-                                                    % nth0(?, Network, HZeta),
-                                                    % nth0(?, Network, OZeta),
+                                                    nth0(3, Network, HZeta),
+                                                    nth0(7, Network, OZeta),
 
                                                     %% TODO: Network precisa armazenar os Activations
                                                     % nth0(?, Network, OActivation),
