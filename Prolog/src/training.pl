@@ -1,6 +1,8 @@
 :- module(training, [train/1]).
 :- [execution, inputOutput, matrix].
 :- use_module(library(random)).
+:- use_module(library(clpfd)).
+
 
 train(Amount) :- getTraining(TrainingSet),
                  getTest(TestSet),
@@ -54,9 +56,9 @@ manageSample(Minibatch, Counter, NetworkModel, Changes) :-
                                                     nth0(2, Sample, Image),
                                                     feedforward(Image, NetworkModel, Network),
                                                     expectedOutput(RepresentedInt, ExpectedOutput),
-                                                    backpropagation(Network, Image, ExpectedOutput, DesiredChanges),
-                                                    generateBasedOf(SumChanges, NetworkModel),
-                                                    addNetworks(SumChanges, DesiredChanges, ChangesA),
+                                                    backpropagation(Network, Image, ExpectedOutput, NewNetwork),
+                                                    generateBasedOf(SumChangNetworkModeles, NetworkModel),
+                                                    addNetworks(SumChanges, NewNetwork, ChangesA),
                                                     manageSample(Minibatch, Counter, NetworkModel, ChangesB),
                                                     addNetworks(ChangesA, ChangesB, Changes).
 
@@ -73,9 +75,6 @@ expectedOutput(9, [[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[1.0]])
 
 backpropagation(Network, Image, ExpectedOutput, DesiredChanges) :-
 
-                                                    nth0(0, Network, HWeight),
-                                                    nth0(1, Network, HBias),
-
                                                     nth0(3, Network, HZeta),
                                                     nth0(7, Network, OZeta),
 
@@ -83,16 +82,27 @@ backpropagation(Network, Image, ExpectedOutput, DesiredChanges) :-
                                                     nth0(2, Network, HActivation),
 
                                                     nth0(2, Network, OWeight),
-                                                    nth0(3, Network, OBias),
 
-                                                    %% TODO: Implementar
                                                     outputError(OActivation, ExpectedOutput, OZeta, OError),
                                                     hiddenError(OWeight, OError, HZeta, HError),
-                                                    computeODesired(OError, HActivation, ODesired),
-                                                    computeHDesired(HError, HDesired).
 
-                                                    %% TODO: Definir DesiredChanges
-                                                    % DesiredChanges = ?.
+                                                    % Isso deve responder um NewNetwork zerado
+                                                    generateBasedOf(Network, NewNetwork),
+
+                                                    nth0(2, NewNetwork, HActivationsChange),
+                                                    nth0(3, NewNetwork, HZetaValuesChange),
+                                                    nth0(6, NewNetwork, OActivationsChange),
+                                                    nth0(7, NewNetwork, OZetaValuesChange),
+
+                                                    transpose(HActivation, HActivationTrans),
+                                                    multMatrix(OError, HActivationTrans, OWeightsChangeModified),
+
+                                                    transpose(Image, ImageTrans),
+                                                    multMatrix(HError, ImageTrans, HWeightsChangeModified),
+
+                                                    DesiredChanges = [HWeightsChangeModified, HError, HActivationsChange, HZetaValuesChange, 
+                                                    OWeightsChangeModified, OError, OActivationsChange, OZetaValuesChange].
+
 
 sig(Elem, Res) :- Res is 1 / 1 + exp(-Elem).
 derivativeSig(Elem, Res) :- sig(Elem, S), Res is S * (1 - S).
