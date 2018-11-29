@@ -67,7 +67,7 @@ readFile(File, Arr):-
     read_line_to_string(Stream, Line),
 
     % Setar a quantidade de linhas a ser lida
-    processR(Line, Stream, F, 0, 600),
+    processR(Line, Stream, F, 0, 1000),
     arr_to_matrix(F, Arr),
     close(Stream).
 
@@ -76,9 +76,9 @@ readTraining(File, Arr):-
     open(File, read, Stream),
 
     read_line_to_string(Stream, Line),
-
+    writeln(Line),
     % Setar a quantidade de linhas a ser lida
-    processR(Line, Stream, F, 0, 600),
+    processR(Line, Stream, F, 0, 1000),
     arr_to_training(F, Arr),
     close(Stream).
 
@@ -86,10 +86,11 @@ readTraining(File, Arr):-
 arr_to_matrix([], []).
 arr_to_matrix([H|T], [C|R]) :- string_to_arr(H, C), arr_to_matrix(T, R).
 
-% Transforma as strings ,presentes na lista, em listas
+% Transforma as strings ,presentes na lista, em listas de treinos
+% no formato [resultado, imagem]
 arr_to_training([], []).
 arr_to_training([H|T], [C|R]) :- 
-    string_to_arr(H, [Label|Mt]),
+    string_to_matrix_column(H, [[Label|_]|Mt]),
     C = [Label, Mt],
     arr_to_training(T, R).
 
@@ -109,12 +110,37 @@ arr_to_atom([H|T], [C|B]):- string_to_atom(H, C), arr_to_atom(T, B).
 arr_to_number([], []).
 arr_to_number([H|T], [C|B]):- atom_number(H, C), arr_to_number(T, B).
 
+% Transforma todos os Atomos da lista em numeros
+arr_to_column_matrix([], []).
+arr_to_column_matrix([H|T], [[C]|B]):- atom_number(H, C), arr_to_column_matrix(T, B).
+
 % Transforma uma string em uma lista de numeros
 string_to_arr(Str, Arr):-
     split_string(Str, " ", " ", Aux1),
     
     arr_to_atom(Aux1 , Aux2),
     arr_to_number(Aux2, Arr).
+
+% Transforma uma string em uma lista de numeros
+string_to_matrix_column(Str, Arr):-
+    split_string(Str, " ", " ", Aux1),
+    
+    arr_to_atom(Aux1 , Aux2),
+    arr_to_column_matrix(Aux2, Arr).
+
+% Output
+indexOf([Element|_], Element, 0).
+indexOf([_|Tail], Element, Index):-
+  indexOf(Tail, Element, Index1), 
+  Index is Index1+1.
+
+getBestSigmoid(Values, Ans):-
+    max_list(Values, Biggie),
+    indexOf(Values, Biggie, Idx),
+    IdxP is Idx + 1,
+    Ans = [IdxP, Biggie],
+    write(Biggie), write(" in "), writeln(IdxP).
+    
 
 printEpoch(CorrectAmount, Amount, TotalAmount) :- write("Epoch #"),
                                                   write(Amount),
