@@ -64,7 +64,7 @@ getWeightsOut(Train):- readFile("biasesOut.txt", Train).
 readFile(File, Arr):-
     open(File, read, Stream),
 
-    read_line_to_codes(Stream, Line),
+    read_line_to_string(Stream, Line),
 
     % Setar a quantidade de linhas a ser lida
     processR(Line, Stream, F, 0, 600),
@@ -75,7 +75,7 @@ readFile(File, Arr):-
 readTraining(File, Arr):-
     open(File, read, Stream),
 
-    read_line_to_codes(Stream, Line),
+    read_line_to_string(Stream, Line),
 
     % Setar a quantidade de linhas a ser lida
     processR(Line, Stream, F, 0, 600),
@@ -97,7 +97,7 @@ arr_to_training([H|T], [C|R]) :-
 processR(end_of_file, _, [], _, _).
 processR(_, _, [], Limit, Limit).
 processR(Line, Stream, [Line|Ans], Cnt, Limit) :-
-    read_line_to_codes(Stream, Line1),
+    read_line_to_string(Stream, Line1),
     Bef is Cnt + 1,
     processR(Line1, Stream, Ans, Bef, Limit).
 
