@@ -34,6 +34,7 @@ matrix_to_list([H|T], [C|R]):-
     atomic_list_concat(H, " ", C),
     matrix_to_list(T, R).
 
+% Limpa o arquivo
 clear(File):- open(File, write, Stream), write(Stream, ""), close(Stream).
     
 % ------------------ Parte com funçoes de Leitura -------------------------
@@ -42,7 +43,10 @@ clear(File):- open(File, write, Stream), write(Stream, ""), close(Stream).
 getTrainings(Train):- readTraining("trainings.txt", Train).
 
 % Retorna a matriz de Testes
-getTests(Train):- readTraining("tests.txt", Train).
+getTests(Test):- readTraining("tests.txt", Test).
+
+% Retorna a imagem de execucao
+getImage(Image):- readFile("image.txt", Image).
 
 % -- Retorna dados da Hidden
 % Retorna a matriz de Treino
