@@ -1,4 +1,4 @@
-:- module(inputOutput, [aaa/0, getTest/1, getTraining/1, printEpoch/3]).
+:- module(inputOutput, [aaa/0, getTests/1, getTrainings/1, printEpoch/3]).
 
 aaa.
 

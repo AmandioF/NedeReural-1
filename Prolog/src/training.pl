@@ -3,9 +3,8 @@
 :- use_module(library(random)).
 :- use_module(library(clpfd)).
 
-
-train(Amount) :- getTraining(TrainingSet),
-                 getTest(TestSet),
+train(Amount) :- getTrainings(TrainingSet),
+                 getTests(TestSet),
                  getNetwork(Network),
                  manageTrainingEpoch(Amount, TrainingSet, TestSet, Network).
 
