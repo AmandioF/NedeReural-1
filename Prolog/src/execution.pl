@@ -1,9 +1,17 @@
 :- module(execution, [execute/0, getNetwork/1, generateBasedOf/2, addNetworks/3, divideNetworks/3, feedforward/3]).
-:- [matrix].
+:- [matrix, inputOutput].
 :- use_module(library(lists)).
 
+% firstNet(InitNetwork) :- [InitHW, InitHB, InitHA, InitHZ, InitOW, InitOB, InitOA, InitOZ].
 
-execute.
+
+
+execute :-
+    loadNetwork(InitNetwork, Network), 
+    getImage(Image),
+    feedforward(Image, Network, FinalNetwork).
+
+    
 
 % SEGUNDA LETRA MAIUSCULA: Matriz
 % Segunda letra normal: Matriz coluna

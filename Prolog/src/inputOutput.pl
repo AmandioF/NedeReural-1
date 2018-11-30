@@ -1,5 +1,5 @@
-:- module(inputOutput, [aaa/0, getTests/1, getTrainings/1, printEpoch/3, writeData/4]).
-:- [execution].
+:- module(inputOutput, [aaa/0, loadNetwork/2, getImage/1, getTests/1, getTrainings/1, printEpoch/3, writeData/4]).
+% :- [execution].
 aaa.
 
 %% ----------------- Parte com funçoes de Escrita ----------------------------
