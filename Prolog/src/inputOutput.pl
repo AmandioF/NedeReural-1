@@ -40,13 +40,13 @@ clear(File):- open(File, write, Stream), write(Stream, ""), close(Stream).
 % ------------------ Parte com funçoes de Leitura -------------------------
 
 % Retorna a matriz de Treino
-getTrainings(Train):- readTraining("trainings.txt", Train, 16).
+getTrainings(Train):- readTraining("trainings.txt", Train, 1000).
 
 % Retorna a matriz de Testes
-getTests(Test):- readTraining("tests.txt", Test, 16).
+getTests(Test):- readTraining("tests.txt", Test, 1000).
 
 % Retorna a imagem de execucao
-getImage(Image):- readFile("image.txt", Image, 16).
+getImage(Image):- readFile("image.txt", Image, 1).
 
 % -- Retorna dados da Hidden
 % Retorna a matriz de Treino
