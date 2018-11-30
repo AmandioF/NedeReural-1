@@ -1,4 +1,4 @@
-:- module(training, [train/1, sigMatrix/2]).
+% :- module(training, [train/1, sigMatrix/2]).
 :- [execution, inputOutput, matrix].
 :- use_module(library(random)).
 :- use_module(library(clpfd)).
@@ -102,10 +102,7 @@ backpropagation(Network, Image, ExpectedOutput, DesiredChanges) :-
                                                     OWeightsChangeModified, OError, OActivationsChange, OZetaValuesChange].
 
 
-sig(Elem, Res) :- Res is 1 / 1 + exp(-Elem).
-sigMatrix(List, Res) :- maplist(maplist(sig), List, Res).
-derivativeSig(Elem, Res) :- sig(Elem, S), Res is S * (1 - S).
-derivativeSigMatrix(List, Res) :- maplist(maplist(derivativeSig), List, Res).
+
                                                 
 outputError(OActivation, ExpectedOutput, OZeta, Res) :- 
     derivativeSigMatrix(OZeta, ZetaDSig),
