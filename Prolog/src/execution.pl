@@ -1,15 +1,17 @@
-:- module(execution, [execute/0, getNetwork/1, generateBasedOf/2, addNetworks/3, divideNetworks/3]).
-:- [matrix].
+:- module(execution, [execute/0, getNetwork/1, generateBasedOf/2, addNetworks/3, divideNetworks/3, feedforward/3]).
+:- [matrix, training].
 :- use_module(library(lists)).
 
 
 execute.
 
-% CAPTION: Matrix
-% normal: column matrix
+% SEGUNDA LETRA MAIUSCULA: Matriz
+% Segunda letra normal: Matriz coluna
 %                                 HW     Hb    Ha    Hz    OW    Ob    Oa    Oz                  
 getNetwork(Network) :- Network = [[[]], [[]], [[]], [[]], [[]], [[]], [[]], [[]]].
 
+% NewNetwork eh uma rede de mesmo formato que Network
+% porem com todo o conteudo composto de 0.0
 generateBasedOf(Network, NewNetwork) :- nth0(0, Network, HiddenWeights),
                                         nth0(1, Network, HiddenBiases),
                                         nth0(2, Network, HiddenActivations),
@@ -18,20 +20,24 @@ generateBasedOf(Network, NewNetwork) :- nth0(0, Network, HiddenWeights),
                                         nth0(5, Network, OutputBiases),
                                         nth0(6, Network, OutputActivations),
                                         nth0(7, Network, OutputZetaValues),
-                                        maplist(replace(0), HiddenWeights, ZeroHWeights),
-                                        maplist(replace(0), HiddenBiases, ZeroHBiases),
-                                        maplist(replace(0), HiddenActivations, ZeroHActivations),
-                                        maplist(replace(0), HiddenZetaValues, ZeroHZetaValues),
-                                        maplist(replace(0), OutputWeights, ZeroOWeights),
-                                        maplist(replace(0), OutputBiases, ZeroOBiases),
-                                        maplist(replace(0), OutputActivations, ZeroOActivations),
-                                        maplist(replace(0), OutputZetaValues, ZeroOZetaValues),
+                                        maplist(replace(0.0), HiddenWeights, ZeroHWeights),
+                                        maplist(replace(0.0), HiddenBiases, ZeroHBiases),
+                                        maplist(replace(0.0), HiddenActivations, ZeroHActivations),
+                                        maplist(replace(0.0), HiddenZetaValues, ZeroHZetaValues),
+                                        maplist(replace(0.0), OutputWeights, ZeroOWeights),
+                                        maplist(replace(0.0), OutputBiases, ZeroOBiases),
+                                        maplist(replace(0.0), OutputActivations, ZeroOActivations),
+                                        maplist(replace(0.0), OutputZetaValues, ZeroOZetaValues),
                                         NewNetwork = [ZeroHWeights, ZeroHBiases, ZeroHActivations, ZeroHZetaValues, 
                                                      ZeroOWeights, ZeroOBiases, ZeroOActivations, ZeroOZetaValues].
 
+% A terceira lista eh a mesma que a segunda,
+% porem onde cada um de seus valores eh NewValue.
 replace(_, [], []).
 replace(NewValue, [_|T], [NewValue|T]) :- replace(NewValue, T, T).
 
+% NetworkC eh uma rede onde cada um de seus compontentes
+% eh a soma dos respectivos componentes de NetworkA e NetworkB.
 addNetworks(NetworkA, NetworkB, NetworkC) :- nth0(0, NetworkA, HiddenWeightsA),
                                              nth0(1, NetworkA, HiddenBiasesA),                                     
                                              nth0(2, Network, HiddenActivationsA),
@@ -59,6 +65,9 @@ addNetworks(NetworkA, NetworkB, NetworkC) :- nth0(0, NetworkA, HiddenWeightsA),
                                              NetworkC = [HiddenWeightsC, HiddenBiasesC, HiddenActivationsC, HiddenZetaValuesC, 
                                                         OutputWeightsC, OutputBiasesC, OutputActivationsC, OutputZetaValuesC].
 
+% NetworkB eh uma rede onde cada um de seus componentes
+% eh equivalente aos respectivos componentes de NetworkA porem
+% divididos por Constant.
 divideNetworks(NetworkA, Constant, NetworkB) :- nth0(0, NetworkA, HiddenWeightsA),
                                                 nth0(1, NetworkA, HiddenBiasesA),                                     
                                                 nth0(2, Network, HiddenActivationsA),
@@ -78,4 +87,19 @@ divideNetworks(NetworkA, Constant, NetworkB) :- nth0(0, NetworkA, HiddenWeightsA
                                                 productByScalar(OutputZetaValuesA, Multiplier, OutputZetaValuesB),
                                                 NetworkB = [HiddenWeightsB, HiddenBiasesB, HiddenActivationsB, HiddenZetaValuesB,
                                                             OutputWeightsB, OutputBiasesB, OutputActivationsB, OutputZetaValuesB].
-                                    
+
+% Ativacao camada-a-camada da rede, onde ExecutedNetwork
+% eh a rede Network com valores de ativacao e zeta alterados
+% de acordo com os calculos utilizando Image.
+feedforward(Image, Network, ExecutedNetwork) :- nth0(0, Network, HiddenWeights),
+                                                nth0(1, Network, HiddenBiases),
+                                                multMatrix(HiddenWeights, Image, ProductMatrix1),
+                                                addMatrix(ProductMatrix1, HiddenBiases, HiddenZetaValues),
+                                                sigMatrix(HiddenZetaValues, HiddenActivations),
+                                                nth0(4, Network, OutputWeights),
+                                                nth0(5, Network, OutputBiases),
+                                                multMatrix(OutputWeights, HiddenActivations, ProductMatrix2),
+                                                addMatrix(ProductMatrix2, OutputBiases, OutputZetaValues),
+                                                sigMatrix(OutputZetaValues, OutputActivations),
+                                                ExecutedNetwork = [HiddenWeights, HiddenBiases, HiddenActivations, HiddenZetaValues,
+                                                OutputWeights, OutputBiases, OutputActivations, OutputZetaValues]. 

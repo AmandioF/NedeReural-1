@@ -1,4 +1,4 @@
-:- module(inputOutput, [aaa/0, getTests/1, getTrainings/1, printEpoch/3]).
+:- module(inputOutput, [aaa/0, getTests/1, getTrainings/1, printEpoch/3, writeData/4]).
 
 aaa.
 
@@ -148,4 +148,3 @@ printEpoch(CorrectAmount, Amount, TotalAmount) :- write("Epoch #"),
                                                   write(CorrectAmount),
                                                   write(" / "),
                                                   writeln(TotalAmount).
-save(Network).
