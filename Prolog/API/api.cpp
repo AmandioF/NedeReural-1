@@ -54,6 +54,7 @@ void allData(std::string image_path, std::string label_path){
     image.read(rows.chars, 4);gmbARUMAITO(rows);
     image.read(colunms.chars, 4);gmbARUMAITO(colunms);
     for(int a = 0; a < size.integer; a++){
+        if(labels[a] != 0 && labels[a] != 7 && labels[a] != 5 && labels[a] != 9)continue;
         std::cout << ((int)labels[a]);
         for(register int i = 0; i < rows.integer; i++){
             for(register int j = 0; j < colunms.integer; j++){
@@ -68,7 +69,7 @@ void allData(std::string image_path, std::string label_path){
 
 int main(int argc, char *argv[]){
     if(argc > 2){
-        allData("", "");
+        allData(std::string(argv[1]),std::string(argv[2]));
         return 0;
     }
     drawing = false;

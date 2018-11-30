@@ -1,19 +1,29 @@
 #!/bin/bash
 
-echo $1
-
 case $1 in
     setup)
         cd API
+        echo "Configuring API..."
         g++ -std=c++14 api.cpp `pkg-config --libs --cflags opencv` -o api
-        cd -
-        ./API/api 1 2 > src/Data/trainings.txt
+        cd ..
+        echo "DONE."
+        echo "Creating Training Dataset..."
+        ./API/api API/images-1.ubyte API/labels-1.ubyte > src/Data/trainings.txt
+        echo "DONE."
+        echo "Creating Test Dataset..."
+        ./API/api API/t10k-images.idx3-ubyte API/t10k-labels.idx1-ubyte > src/Data/tests.txt
+        echo "DONE."
+        echo "All setup is done."
     ;;
     train)
         cd src/
-        swipl main.pl
+        swipl main.pl train
+        cd ..
     ;;
     exec)
-        ./api 1 > src/Data/image.txt
+        ./API/api 1 > src/Data/image.txt
+        cd src
+        swipl main.pl exec
+        cd ..
     ;;
 esac
