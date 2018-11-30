@@ -7,11 +7,11 @@ aaa.
 % -- Escreve os dados da biases e do output
 % nos seus respectivos arquivos
 writeData(BH, BO, WH, WO):-
-    writeFile("biasesHidden.txt", BH),
-    writeFile("weightsHidden.txt", WH),
+    writeFile("Data/Biases_hidden.txt", BH),
+    writeFile("Data/Weight_hidden.txt", WH),
 
-    writeFile("biasesOut.txt", BO),
-    writeFile("weightsOut.txt", WO).
+    writeFile("Data/Biases_Output.txt", BO),
+    writeFile("Data/Weight_Output.txt", WO).
 
 % Escreve no arquivo
 writeFile(File, Matrix):-
@@ -40,45 +40,45 @@ clear(File):- open(File, write, Stream), write(Stream, ""), close(Stream).
 % ------------------ Parte com funçoes de Leitura -------------------------
 
 % Retorna a matriz de Treino
-getTrainings(Train):- readTraining("trainings.txt", Train).
+getTrainings(Train):- readTraining("trainings.txt", Train, 16).
 
 % Retorna a matriz de Testes
-getTests(Test):- readTraining("tests.txt", Test).
+getTests(Test):- readTraining("tests.txt", Test, 16).
 
 % Retorna a imagem de execucao
-getImage(Image):- readFile("image.txt", Image).
+getImage(Image):- readFile("image.txt", Image, 16).
 
 % -- Retorna dados da Hidden
 % Retorna a matriz de Treino
-getBiasesHidden(Train):- readFile("biasesHidden.txt", Train).
+getBiasesHidden(Train):- readFile("Data/Biases_hidden.txt", Train, 16).
 % Retorna a matriz de Treino
-getWeightsHidden(Train):- readFile("weightsHidden.txt", Train).
+getWeightsHidden(Train):- readFile("Data/Weights_hidden.txt", Train, 16).
 
 % -- Retorna dados do output
 % Retorna a matriz de Treino
-getBiasesOut(Train):- readFile("biasesOut.txt", Train).
+getBiasesOut(Train):- readFile("Data/Biases_Output.txt", Train, 16).
 % Retorna a matriz de Treino
-getWeightsOut(Train):- readFile("biasesOut.txt", Train).
+getWeightsOut(Train):- readFile("Data/Weight_Output.txt", Train, 16).
 
 % Lê o arquivo e transforma-o em uma matriz de numeros
-readFile(File, Arr):-
+readFile(File, Arr, LinesToRead):-
     open(File, read, Stream),
 
     read_line_to_string(Stream, Line),
 
     % Setar a quantidade de linhas a ser lida
-    processR(Line, Stream, F, 0, 1000),
+    processR(Line, Stream, F, 0, LinesToRead),
     arr_to_matrix(F, Arr),
     close(Stream).
 
 % Lê um arquivo em forma de Treino
-readTraining(File, Arr):-
+readTraining(File, Arr, LinesToRead):-
     open(File, read, Stream),
 
     read_line_to_string(Stream, Line),
     writeln(Line),
     % Setar a quantidade de linhas a ser lida
-    processR(Line, Stream, F, 0, 1000),
+    processR(Line, Stream, F, 0, LinesToRead),
     arr_to_training(F, Arr),
     close(Stream).
 
