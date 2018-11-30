@@ -27,7 +27,8 @@ mult(X,Y,Z) :- Z is X*Y.
 subMatrix(M1, M2, M3) :- maplist(maplist(subtraction), M1, M2, M3).
 subtraction(X,Y,Z) :- Z is X - Y.
 
-sig(Elem, Res) :- Res is 1 / 1 + exp(-Elem).
+sig(Elem, Res) :- Res is 1 / (1 + exp(-Elem)).
 sigMatrix(List, Res) :- maplist(maplist(sig), List, Res).
+
 derivativeSig(Elem, Res) :- sig(Elem, S), Res is S * (1 - S).
 derivativeSigMatrix(List, Res) :- maplist(maplist(derivativeSig), List, Res).

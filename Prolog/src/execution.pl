@@ -1,16 +1,19 @@
 :- module(execution, [execute/0, getNetwork/1, generateBasedOf/2, addNetworks/3, divideNetworks/3, feedforward/3]).
 :- [matrix, inputOutput].
 :- use_module(library(lists)).
+:- use_module(library(clpfd)).
+
 
 % firstNet(InitNetwork) :- [InitHW, InitHB, InitHA, InitHZ, InitOW, InitOB, InitOA, InitOZ].
 
 
 
 execute :-
-    loadNetwork(InitNetwork, Network), 
+    getNetwork(Network),
     getImage(Image),
-    feedforward(Image, Network, FinalNetwork).
-
+    feedforward(Image, Network, FinalNetwork),
+    nth0(6, FinalNetwork, OutputActivations),
+    writeln(OutputActivations).
     
 
 % SEGUNDA LETRA MAIUSCULA: Matriz
@@ -19,9 +22,11 @@ execute :-
 getNetwork(Network) :- 
     getWeightsHidden(HW),
     getBiasesHidden(Hb),
+    transpose(Hb, NHb),
     getWeightsOut(OW),
     getBiasesOut(Ob),
-    Network = [HW, Hb, Hb, Hb, OW, Ob, Ob, Ob].
+    transpose(Ob, NOb),
+    Network = [HW, NHb, NHb, NHb, OW, NOb, NOb, NOb].
 
 % NewNetwork eh uma rede de mesmo formato que Network
 % porem com todo o conteudo composto de 0.0
@@ -107,12 +112,16 @@ divideNetworks(NetworkA, Constant, NetworkB) :- nth0(0, NetworkA, HiddenWeightsA
 feedforward(Image, Network, ExecutedNetwork) :- nth0(0, Network, HiddenWeights),
                                                 nth0(1, Network, HiddenBiases),
                                                 multMatrix(HiddenWeights, Image, ProductMatrix1),
+
                                                 addMatrix(ProductMatrix1, HiddenBiases, HiddenZetaValues),
                                                 sigMatrix(HiddenZetaValues, HiddenActivations),
                                                 nth0(4, Network, OutputWeights),
                                                 nth0(5, Network, OutputBiases),
+
                                                 multMatrix(OutputWeights, HiddenActivations, ProductMatrix2),
                                                 addMatrix(ProductMatrix2, OutputBiases, OutputZetaValues),
                                                 sigMatrix(OutputZetaValues, OutputActivations),
+                                                writeln(OutputZetaValues),
+                                                writeln("-----------"), writeln(""),
                                                 ExecutedNetwork = [HiddenWeights, HiddenBiases, HiddenActivations, HiddenZetaValues,
                                                 OutputWeights, OutputBiases, OutputActivations, OutputZetaValues]. 

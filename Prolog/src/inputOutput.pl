@@ -46,7 +46,7 @@ getTrainings(Train):- readTraining("Data/trainings.txt", Train, 1000).
 getTests(Test):- readTraining("Data/tests.txt", Test, 1000).
 
 % Retorna a imagem de execucao
-getImage(Image):- readFile("Data/image.txt", Image, 1).
+getImage(Image):- readFile("Data/image.txt", Image, 784).
 
 % Carrega a network
 loadNetwork(InitialNet, Network) :- 
