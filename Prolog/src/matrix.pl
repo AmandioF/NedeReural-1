@@ -1,4 +1,4 @@
-:- module(matrix, [dot/3, hadamardMatrix/3, subMatrix/3, multMatrix/3, addMatrix/3, addition/3, product/3, productByScalar/3]).
+:- module(matrix, [dot/3, sigMatrix/2, derivativeSigMatrix/2, hadamardMatrix/3, subMatrix/3, multMatrix/3, addMatrix/3, addition/3, product/3, productByScalar/3]).
 :- use_module(library(clpfd)).
 
 % N eh o produto escalar das listas V1 e V2.
@@ -26,3 +26,8 @@ mult(X,Y,Z) :- Z is X*Y.
 % M3 eh a matriz da subtracao entre M1 e M2
 subMatrix(M1, M2, M3) :- maplist(maplist(subtraction), M1, M2, M3).
 subtraction(X,Y,Z) :- Z is X - Y.
+
+sig(Elem, Res) :- Res is 1 / 1 + exp(-Elem).
+sigMatrix(List, Res) :- maplist(maplist(sig), List, Res).
+derivativeSig(Elem, Res) :- sig(Elem, S), Res is S * (1 - S).
+derivativeSigMatrix(List, Res) :- maplist(maplist(derivativeSig), List, Res).
