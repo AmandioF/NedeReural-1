@@ -1,44 +1,44 @@
-:- module(training, [train/1]).
+:- module(training, [train/1, sigMatrix/2]).
 :- [execution, inputOutput, matrix].
 :- use_module(library(random)).
+:- use_module(library(clpfd)).
 
-train(Amount) :- getTraining(TrainingSet),
-                 getTest(TestSet),
+% Treina a rede com Amount sendo a quantidade de epocas
+% de treino.
+train(Amount) :- getTrainings(TrainingSet),
+                 getTests(TestSet),
                  getNetwork(Network),
                  manageTrainingEpoch(Amount, TrainingSet, TestSet, Network).
 
-manageTrainingEpoch(0, _, _, _).
+manageTrainingEpoch(0, _, _, Network) :- save(Network).
 manageTrainingEpoch(Amount, TrainingSet, TestSet, Network) :- 
                                     trainingEpoch(TrainingSet, Network, NewNetwork),
                                     testEpoch(TestSet, NewNetwork, CorrectAmount),
                                     length(TestSet, TotalAmount),
                                     printEpoch(CorrectAmount, Amount, TotalAmount),
-                                    save(NewNetwork),
                                     NewAmount is Amount - 1,
                                     manageTrainingEpoch(NewAmount, TrainingSet, TestSet, NewNetwork).
 
 trainingEpoch(TrainingSet, Network, NewNetwork) :-
                             length(TrainingSet, TrainingSize),
-                            % faz o shuffle no training seet
                             random_permutation(TrainingSet, ShuffledTrainingSet),
                             MinibatchAmount is 20,
-                            MinibatchSize is TrainingSize // 20,
-                            % cria uma matriz, onde cada linha é uma parte do training set
-                            chunksOf(ShuffledTrainingSet, MinibatchAmount, Minibatches),
+                            MinibatchSize is TrainingSize // MinibatchAmount,
+                            chunksOf(ShuffledTrainingSet, MinibatchSize, Minibatches),
                             manageMinibatch(MinibatchAmount, 0, Network, Minibatches, NewNetwork).
 
 manageMinibatch(Amount, Counter, Network, _, NewNetwork) :- 
-                                                    Index is Counter + 1, 
-                                                    Amount =:= Index, 
-                                                    generateBasedOf(Network, NewNetwork).
+                            Index is Counter + 1, 
+                            Amount =:= Index, 
+                            generateBasedOf(Network, NewNetwork).
 
 manageMinibatch(Amount, Counter, Network, Minibatches, NewNetwork) :- 
-                                                nth0(Counter, Minibatches, Minibatch),
-                                                minibatchEvaluation(Minibatch, Amount, Network, Changes),
-                                                addNetworks(Network, Changes, NetworkA),
-                                                NewCounter is Counter + 1,
-                                                manageMinibatch(Amount, NewCounter, Network, Minibatches, NetworkB),
-                                                addNetworks(NetworkA, NetworkB, NewNetwork).
+                            nth0(Counter, Minibatches, Minibatch),
+                            minibatchEvaluation(Minibatch, Amount, Network, Changes),
+                            addNetworks(Network, Changes, NetworkA),
+                            NewCounter is Counter + 1,
+                            manageMinibatch(Amount, NewCounter, Network, Minibatches, NetworkB),
+                            addNetworks(NetworkA, NetworkB, NewNetwork).
 
 minibatchEvaluation(Minibatch, Amount, Network, AverageDesiredChanges) :- 
                                                             manageSample(Minibatch, Amount, Network, SumedDesiredChanges),
@@ -53,67 +53,108 @@ manageSample(Minibatch, Counter, NetworkModel, Changes) :-
                                                     nth0(1, Sample, RepresentedInt),
                                                     nth0(2, Sample, Image),
                                                     feedforward(Image, NetworkModel, Network),
-                                                    buildExpectedOutput(RepresentedInt, ExpectedOutput),
-                                                    backpropagation(Network, Image, ExpectedOutput, DesiredChanges),
-                                                    generateBasedOf(SumChanges, NetworkModel),
-                                                    addNetworks(SumChanges, DesiredChanges, ChangesA),
+                                                    expectedOutput(RepresentedInt, ExpectedOutput),
+                                                    backpropagation(Network, Image, ExpectedOutput, NewNetwork),
+                                                    generateBasedOf(NetworkModel, SumChanges),
+                                                    addNetworks(SumChanges, NewNetwork, ChangesA),
                                                     manageSample(Minibatch, Counter, NetworkModel, ChangesB),
                                                     addNetworks(ChangesA, ChangesB, Changes).
 
-buildExpectedOutput(RepresentedInt, ExpectedOutput) :-
-                                                BasicOutput = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                select(RepresentedInt, BasicOutput, RepresentedInt, ExpectedOutput).
+expectedOutput(0, [[1.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0]]).
+expectedOutput(1, [[0.0],[1.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0]]).
+expectedOutput(2, [[0.0],[0.0],[1.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0]]).
+expectedOutput(3, [[0.0],[0.0],[0.0],[1.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0]]).
+expectedOutput(4, [[0.0],[0.0],[0.0],[0.0],[1.0],[0.0],[0.0],[0.0],[0.0],[0.0]]).
+expectedOutput(5, [[0.0],[0.0],[0.0],[0.0],[0.0],[1.0],[0.0],[0.0],[0.0],[0.0]]).
+expectedOutput(6, [[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[1.0],[0.0],[0.0],[0.0]]).
+expectedOutput(7, [[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[1.0],[0.0],[0.0]]).
+expectedOutput(8, [[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[1.0],[0.0]]).
+expectedOutput(9, [[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[0.0],[1.0]]).
 
 backpropagation(Network, Image, ExpectedOutput, DesiredChanges) :-
 
-                                                    %% TODO: Lembrar de renomear para singular
-                                                    nth0(0, Network, HWeight),
-                                                    nth0(1, Network, HBias),
+                                                    nth0(3, Network, HZeta),
+                                                    nth0(7, Network, OZeta),
 
-                                                    %% TODO: Network precisa armazenar os Zetas
-                                                    % nth0(?, Network, HZeta),
-                                                    % nth0(?, Network, OZeta),
-
-                                                    %% TODO: Network precisa armazenar os Activations
-                                                    % nth0(?, Network, OActivation),
-                                                    % nth0(?, Network, HActivation),
+                                                    nth0(6, Network, OActivation),
+                                                    nth0(2, Network, HActivation),
 
                                                     nth0(2, Network, OWeight),
-                                                    nth0(3, Network, OBias),
 
-                                                    %% TODO: Implementar
                                                     outputError(OActivation, ExpectedOutput, OZeta, OError),
                                                     hiddenError(OWeight, OError, HZeta, HError),
-                                                    computeODesired(OError, HActivation, ODesired),
-                                                    computeHDesired(HError, HDesired).
 
-                                                    %% TODO: Definir DesiredChanges
-                                                    % DesiredChanges = ?.
+                                                    % Isso deve responder um NewNetwork zerado
+                                                    generateBasedOf(Network, NewNetwork),
+
+                                                    nth0(2, NewNetwork, HActivationsChange),
+                                                    nth0(3, NewNetwork, HZetaValuesChange),
+                                                    nth0(6, NewNetwork, OActivationsChange),
+                                                    nth0(7, NewNetwork, OZetaValuesChange),
+
+                                                    transpose(HActivation, HActivationTrans),
+                                                    multMatrix(OError, HActivationTrans, OWeightsChangeModified),
+
+                                                    transpose(Image, ImageTrans),
+                                                    multMatrix(HError, ImageTrans, HWeightsChangeModified),
+
+                                                    DesiredChanges = [HWeightsChangeModified, HError, HActivationsChange, HZetaValuesChange, 
+                                                    OWeightsChangeModified, OError, OActivationsChange, OZetaValuesChange].
+
 
 sig(Elem, Res) :- Res is 1 / 1 + exp(-Elem).
+sigMatrix(List, Res) :- maplist(maplist(sig), List, Res).
 derivativeSig(Elem, Res) :- sig(Elem, S), Res is S * (1 - S).
-derivativeSigList(List, Res) :- maplist(derivativeSig, List, Res).
-
-%% TODO: Isso precisa de revisao, talvez o calculo esteja errado
+derivativeSigMatrix(List, Res) :- maplist(maplist(derivativeSig), List, Res).
+                                                
 outputError(OActivation, ExpectedOutput, OZeta, Res) :- 
-    derivativeSigList(OZeta, ZetaDSig), 
-% Talvez o dot product nao seja ideal
-    dot((OActivation - ExpectedOutput), ZetaDSig, Res).
+    derivativeSigMatrix(OZeta, ZetaDSig),
+    subMatrix(OActivation, ExpectedOutput, Sub),
+    hadamardMatrix(Sub, ZetaDSig, Res).
 
 hiddenError(OWeight, OError, HZeta, Res) :-
-    derivativeSigList(HZeta, HZetaDSig),
+    derivativeSigMatrix(HZeta, HZetaDSig),
 % Maybe transpose won't work (?)
     transpose(OWeight, OWeightTrans),
     multMatrix(OWeightTrans, OError, MultRes),
     hadamardMatrix(MultRes, HZetaDSig, Res).
 
+% Efetua uma epoca de testes com TestSet
+testEpoch(TestSet, Network, CorrectAmount) :- length(TestSet, TestSize), 
+                                                 manageTestEpoch(TestSet, Network, TestSize, CorrectAmount).
 
-    
+manageTestEpoch(_, _, 0, 0).
 
+% Executa cada teste de TestSet na rede Network, checando se foram bem sucedidos,
+% onde CorrectAmount eh a quantidade de testes bem sucedidos.
+manageTestEpoch(TestSet, Network, Counter, CorrectAmount) :- nth0(Counter, TestSet, Test),
+                                                             nth0(0, Test, RepresentedInt),
+                                                             nth0(1, Test, Image),
+                                                             feedforward(Image, Network, NewNetwork),
+                                                             nth0(6, NewNetwork, OutputActivations),
+                                                             testOutput(OutputActivations, RepresentedInt, Result1),
+                                                             NewCounter is Counter - 1,
+                                                             manageTestEpoch(TestSet, Network, NewCounter, Result2),
+                                                             CorrectAmount is Result1 + Result2.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Verifica se o teste foi bem sucedido. Se sim, Result eh 1,
+% senao, Result eh 0.
+testOutput(OutputActivations, RepresentedInt, Result) :- expectedOutput(RepresentedInt, OutputActivations),
+                                                         Result = 1.
+
+testOutput(_, _, 0).
+
+% Quebra List em partes de tamanho T,
+% onde cada parte eh uma linha da matrix
+% resultante.
 chunksOf(List, T, [Start|Rest]) :-
     append(Start, Remainder, List),
     length(Start, T),
     chunksOf(Remainder, T, Rest).
 
+% Salva as partes relevantes da rede Network em arquivos.
+save(Network) :- nth0(0, Network, HiddenWeights),
+                 nth0(1, Network, HiddenBiases),
+                 nth0(4, Network, OutputWeights),
+                 nth0(5, Network, OutputBiases),
+                 writeData(HiddenBiases, OutputBiases, HiddenWeights, OutputWeights).

@@ -1,4 +1,4 @@
-:- module(inputOutput, [aaa/0, getTest/1, getTraining/1, printEpoch/3]).
+:- module(inputOutput, [aaa/0, getTests/1, getTrainings/1, printEpoch/3, writeData/4]).
 
 aaa.
 
@@ -128,7 +128,6 @@ string_to_matrix_column(Str, Arr):-
     arr_to_atom(Aux1 , Aux2),
     arr_to_column_matrix(Aux2, Arr).
 
-
 % Output
 indexOf([Element|_], Element, 0).
 indexOf([_|Tail], Element, Index):-
@@ -149,4 +148,3 @@ printEpoch(CorrectAmount, Amount, TotalAmount) :- write("Epoch #"),
                                                   write(CorrectAmount),
                                                   write(" / "),
                                                   writeln(TotalAmount).
-save(Network).
