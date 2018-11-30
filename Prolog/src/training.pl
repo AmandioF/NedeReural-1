@@ -144,6 +144,8 @@ testOutput(_, _, 0).
 % Quebra List em partes de tamanho T,
 % onde cada parte eh uma linha da matrix
 % resultante.
+chunksOf(_, _, []).
+
 chunksOf(List, T, [Start|Rest]) :-
     append(Start, Remainder, List),
     length(Start, T),

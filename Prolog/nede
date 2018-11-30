@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#// weights output 10x16
+#// weights hidden 16x784
+#// bias hidden 16
+#// bias output 10
+
 case $1 in
     setup)
         cd API
@@ -7,12 +12,25 @@ case $1 in
         g++ -std=c++14 api.cpp `pkg-config --libs --cflags opencv` -o api
         cd ..
         echo "DONE."
+
+        echo "Creating Biases..."
+        ./API/api 1 16 -R > src/Data/Biases_hidden.txt
+        ./API/api 1 10 -R > src/Data/Biases_Output.txt
+        echo "DONE"
+
+        echo "Creating Weight..."
+        ./API/api 16 784 -R > src/Data/Weight_hidden.txt
+        ./API/api 10 16 -R > src/Data/Weight_Output.txt
+        echo "DONE"
+
         echo "Creating Training Dataset..."
         ./API/api API/images-1.ubyte API/labels-1.ubyte > src/Data/trainings.txt
         echo "DONE."
+        
         echo "Creating Test Dataset..."
         ./API/api API/t10k-images.idx3-ubyte API/t10k-labels.idx1-ubyte > src/Data/tests.txt
         echo "DONE."
+        
         echo "All setup is done."
     ;;
     train)

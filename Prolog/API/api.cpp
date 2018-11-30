@@ -68,8 +68,19 @@ void allData(std::string image_path, std::string label_path){
 }
 
 int main(int argc, char *argv[]){
-    if(argc > 2){
+    if(argc == 3){
         allData(std::string(argv[1]),std::string(argv[2]));
+        return 0;
+    }
+    if(argc == 4){
+        srand(0);
+        int x = atoi(argv[1]);
+        int y = atoi(argv[2]);
+        for(int i = 0; i < x; i++){
+            for(int j = 0; j < y; j++){
+                printf("%.6lf%c", (rand()%100000 + 1)/100000.0 , " \n"[j + 1 == y]);
+            }
+        }
         return 0;
     }
     drawing = false;
@@ -83,6 +94,8 @@ int main(int argc, char *argv[]){
             cv::Mat b;
             cv::Size size(28, 28);
             cv::resize(img, b, size);
+            cv::imshow("debug",b);
+            while(1);
             for(int i = 0; i < 28; i++){
                 for(int j = 0; j < 28; j++){
                     std::cout <<  b.at<uchar>(cv::Point(i, j)) / 255.0 << " \n"[i == 27 && j == 27];
