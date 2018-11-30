@@ -1,5 +1,5 @@
 :- module(inputOutput, [aaa/0, getTests/1, getTrainings/1, printEpoch/3, writeData/4]).
-
+:- [execution].
 aaa.
 
 %% ----------------- Parte com funçoes de Escrita ----------------------------
@@ -48,6 +48,25 @@ getTests(Test):- readTraining("tests.txt", Test).
 % Retorna a imagem de execucao
 getImage(Image):- readFile("image.txt", Image).
 
+% Carrega a network
+loadNetwork(InitialNet, Network) :- 
+    getBiasesHidden(BH),
+    getBiasesOut(BO),
+    getWeightsHidden(WH),
+    getWeightsOut(WO),
+    
+    nth0(2, InitialNet, InitHActivations),
+    nth0(3, InitialNet, InitHZetaValues),
+    nth0(6, InitialNet, InitOActivations),
+    nth0(7, InitialNet, InitOZetaValues),
+    
+    Network = [ WH,               BH,
+    InitHActivations, InitHZetaValues,
+    WO,               BO,
+    InitOActivations, InitOZetaValues ]. 
+    
+    
+    
 % -- Retorna dados da Hidden
 % Retorna a matriz de Treino
 getBiasesHidden(Train):- readFile("biasesHidden.txt", Train).
