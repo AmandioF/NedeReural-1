@@ -1,0 +1,19 @@
+#!/bin/bash
+
+echo $1
+
+case $1 in
+    setup)
+        cd API
+        g++ -std=c++14 api.cpp `pkg-config --libs --cflags opencv` -o api
+        cd -
+        ./API/api 1 2 > src/Data/trainings.txt
+    ;;
+    train)
+        cd src/
+        swipl main.pl
+    ;;
+    exec)
+        ./api 1 > src/Data/image.txt
+    ;;
+esac
