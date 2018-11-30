@@ -26,10 +26,10 @@ void draw_circle(int event, int x, int y, int flags, void* param){
         drawing = true;
     }else if(event == cv::EVENT_MOUSEMOVE){
         if (drawing == true)
-            cv::circle(img,cv::Point(x,y),6,cv::Scalar(255,255,255),-1, cv::LINE_AA);
+            cv::circle(img,cv::Point(x,y),10.5,cv::Scalar(255,255,255),-1, cv::LINE_AA);
     }else if(event == cv::EVENT_LBUTTONUP){
         drawing = false;
-        cv::circle(img,cv::Point(x,y),6,cv::Scalar(255,255,255),-1, cv::LINE_AA);
+        cv::circle(img,cv::Point(x,y),10.5,cv::Scalar(255,255,255),-1, cv::LINE_AA);
     }
 }
 
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]){
         return 0;
     }
     drawing = false;
-    img = cv::Mat(280, 280, CV_8UC3, cv::Scalar(0,0,0));
+    img = cv::Mat(280, 280, CV_8UC1, cv::Scalar(0,0,0));
     cv::namedWindow("Desenhe");
     cv::setMouseCallback("Desenhe", draw_circle);
     while(1){
@@ -93,9 +93,8 @@ int main(int argc, char *argv[]){
         if (k == 's'){
             cv::Mat b;
             cv::Size size(28, 28);
-            cv::resize(img, b, size);
-            cv::imshow("debug",b);
-            while(1);
+            resize(img, b, size);
+            cv::imshow("Desenhe", b);
             for(int i = 0; i < 28; i++){
                 for(int j = 0; j < 28; j++){
                     std::cout <<  b.at<uchar>(cv::Point(i, j)) / 255.0 << " \n"[i == 27 && j == 27];
