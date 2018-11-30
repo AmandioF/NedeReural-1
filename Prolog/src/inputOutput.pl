@@ -1,4 +1,4 @@
-:- module(inputOutput, [aaa/0, loadNetwork/2, getImage/1, getTests/1, getTrainings/1, printEpoch/3, writeData/4]).
+:- module(inputOutput, [aaa/0, loadNetwork/2, getImage/1, getTests/1, getTrainings/1, printEpoch/3, writeData/4, getBiasesHidden/1, getBiasesOut/1, getWeightsHidden/1, getWeightsOut/1]).
 % :- [execution].
 aaa.
 
@@ -40,13 +40,13 @@ clear(File):- open(File, write, Stream), write(Stream, ""), close(Stream).
 % ------------------ Parte com funçoes de Leitura -------------------------
 
 % Retorna a matriz de Treino
-getTrainings(Train):- readTraining("trainings.txt", Train, 1000).
+getTrainings(Train):- readTraining("Data/trainings.txt", Train, 1000).
 
 % Retorna a matriz de Testes
-getTests(Test):- readTraining("tests.txt", Test, 1000).
+getTests(Test):- readTraining("Data/tests.txt", Test, 1000).
 
 % Retorna a imagem de execucao
-getImage(Image):- readFile("image.txt", Image, 1).
+getImage(Image):- readFile("Data/image.txt", Image, 1).
 
 % Carrega a network
 loadNetwork(InitialNet, Network) :- 
@@ -69,13 +69,13 @@ loadNetwork(InitialNet, Network) :-
     
 % -- Retorna dados da Hidden
 % Retorna a matriz de Treino
-getBiasesHidden(Train):- readFile("Data/Biases_hidden.txt", Train, 16).
+getBiasesHidden(Train):- readFile("Data/Biases_hidden.txt", Train, 1).
 % Retorna a matriz de Treino
-getWeightsHidden(Train):- readFile("Data/Weights_hidden.txt", Train, 16).
+getWeightsHidden(Train):- readFile("Data/Weight_hidden.txt", Train, 16).
 
 % -- Retorna dados do output
 % Retorna a matriz de Treino
-getBiasesOut(Train):- readFile("Data/Biases_Output.txt", Train, 16).
+getBiasesOut(Train):- readFile("Data/Biases_Output.txt", Train, 1).
 % Retorna a matriz de Treino
 getWeightsOut(Train):- readFile("Data/Weight_Output.txt", Train, 16).
 

@@ -16,7 +16,12 @@ execute :-
 % SEGUNDA LETRA MAIUSCULA: Matriz
 % Segunda letra normal: Matriz coluna
 %                                 HW     Hb    Ha    Hz    OW    Ob    Oa    Oz                  
-getNetwork(Network) :- Network = [[[]], [[]], [[]], [[]], [[]], [[]], [[]], [[]]].
+getNetwork(Network) :- 
+    getWeightsHidden(HW),
+    getBiasesHidden(Hb),
+    getWeightsOut(OW),
+    getBiasesOut(Ob),
+    Network = [HW, Hb, Hb, Hb, OW, Ob, Ob, Ob].
 
 % NewNetwork eh uma rede de mesmo formato que Network
 % porem com todo o conteudo composto de 0.0
